@@ -28,16 +28,16 @@ namespace CE.Assessment.BusinessLogic.Test.Services
             var result = await _orderService.GetTop5OrderedProducts(orderDetails);
             
             var orderProducts = result.ToList();
+            var maxQuantity = orderProducts.Max(x => x.TotalQuantity);
 
             //Assert
-            result.Should().BeOfType<IEnumerable<OrderProduct>>();
             orderProducts.Should().BeOfType<List<OrderProduct>>();
             orderProducts.Count.Should().Be(5);
-            orderProducts.First().TotalQuantity.Should().Be(20);
+            orderProducts.First().TotalQuantity.Should().Be(maxQuantity);
         }
 
         [Fact]
-        public async Task ShouldReturnNull_WhenOrdersIsNotProvided() 
+        public async Task ShouldReturnEmpty_WhenOrdersIsNotProvided() 
         {
             //Arrange
             var orderDetails = new List<OrderDetail>();
@@ -46,7 +46,7 @@ namespace CE.Assessment.BusinessLogic.Test.Services
             var result = await _orderService.GetTop5OrderedProducts(orderDetails);
 
             //Assert
-            result.Should().BeNull();
+            result.Should().BeEmpty();
         }
     }
 }

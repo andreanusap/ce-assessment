@@ -1,9 +1,4 @@
 ﻿using CE.Assessment.BusinessLogic.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CE.Assessment.BusinessLogic.Services
 {
@@ -16,9 +11,53 @@ namespace CE.Assessment.BusinessLogic.Services
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Get top 5 products from orders
+        /// </summary>
+        /// <param name="orderDetails">List of order</param>
+        /// <returns>List of order products</returns>
         public async Task<IEnumerable<OrderProduct>> GetTop5OrderedProducts(IEnumerable<OrderDetail> orderDetails)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var orderProducts = new List<OrderProduct>();
+
+                if (orderDetails is null)
+                {
+                    return orderProducts;
+                }
+
+                var dOrderProduct = new Dictionary<string, OrderProduct>();
+
+                foreach(var order in orderDetails)
+                {
+                    foreach(var line in order.Lines)
+                    {
+                        if (dOrderProduct.ContainsKey(line.MerchantProductNo))
+                        {
+                            dOrderProduct[line.MerchantProductNo].TotalQuantity += line.Quantity;
+                        } else
+                        {
+                            dOrderProduct.Add(line.MerchantProductNo,
+                                new OrderProduct(line.MerchantProductNo, line.Description, line.Gtin, line.Quantity));
+                        }
+                    }
+                }
+
+                foreach(var orderProduct in dOrderProduct)
+                {
+                    orderProducts.Add(orderProduct.Value);
+                }
+
+                return orderProducts
+                    .OrderByDescending(x => x.TotalQuantity)
+                    .Take(5);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.Message);
+                throw;
+            }
         }
     }
 }

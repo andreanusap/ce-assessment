@@ -21,8 +21,11 @@ namespace CE.Assessment.BusinessLogic.Test.Helpers
         /// <returns>Line</returns>
         public static Line CreateLine(int quantity = 1)
         {
+            Random r = new Random();
+            var productNo = "ProductNo-"+r.Next(10).ToString();
             return Fixture.Build<Line>()
                 .With(x => x.Quantity, quantity)
+                .With(x => x.MerchantProductNo, productNo)
                 .Create();
         }
 
@@ -47,12 +50,12 @@ namespace CE.Assessment.BusinessLogic.Test.Helpers
         /// <returns>List of order detail</returns>
         public static IEnumerable<OrderDetail> CreateOrderDetails(int maxQuantity = 1, int minQuantity = 1)
         {
-            Random r = new Random();
-            int rQuantity = r.Next(minQuantity, maxQuantity);
             var orders = new List<OrderDetail>();
 
             for(int i = 0; i < 10; i++) ///create 10 mocks of order detail
             {
+                Random r = new Random();
+                int rQuantity = r.Next(minQuantity, maxQuantity);
                 orders.Add(CreateOrderDetail(rQuantity));
             }
 
