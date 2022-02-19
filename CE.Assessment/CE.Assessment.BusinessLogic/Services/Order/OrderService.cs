@@ -1,14 +1,45 @@
 ﻿using CE.Assessment.BusinessLogic.Entities;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Options = CE.Assessment.BusinessLogic.Entities.Options;
 
 namespace CE.Assessment.BusinessLogic.Services
 {
     public class OrderService : IOrderService
     {
-        public OrderService() { }
+        private readonly HttpClient _httpClient;
+        private readonly Options _options;
+
+        public OrderService(HttpClient httpClient, IOptions<Options> options) 
+        {
+            _httpClient = httpClient;
+            _options = options.Value;
+            _httpClient.BaseAddress = new Uri($"{_options.BaseUrl}/orders?apikey={_options.ApiKey}");
+        }
 
         public async Task<IEnumerable<OrderDetail>> GetInProgressOrders()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var request = $"?statuses=IN_PROGRESS";
+                using var httpRequest = new HttpRequestMessage(HttpMethod.Get, request);
+                using var httpResponse = await _httpClient.SendAsync(httpRequest);
+
+                if (httpResponse.IsSuccessStatusCode)
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    var orderDetails = JsonConvert.DeserializeObject<List<OrderDetail>>(content);
+                    return orderDetails;
+                } else
+                {
+                    return Enumerable.Empty<OrderDetail>();
+                }
+            }
+            catch (Exception ex)
+            { 
+                Console.Error.WriteLine(ex.Message);
+                throw;
+            }
         }
 
         /// <summary>
