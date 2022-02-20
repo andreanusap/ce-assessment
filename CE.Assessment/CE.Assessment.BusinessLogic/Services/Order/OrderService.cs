@@ -62,7 +62,7 @@ namespace CE.Assessment.BusinessLogic.Services
             {
                 var orderProducts = new List<OrderProduct>();
 
-                if (orderDetails is null)
+                if (orderDetails is null || !orderDetails.Any())
                 {
                     return orderProducts;
                 }
