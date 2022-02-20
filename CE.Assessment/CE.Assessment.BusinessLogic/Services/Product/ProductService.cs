@@ -16,7 +16,7 @@ namespace CE.Assessment.BusinessLogic.Services
         {
             _httpClient = httpClient;
             _options = options.Value;
-            _httpClient.BaseAddress = new Uri($"{_options.BaseUrl}/products");
+            _httpClient.BaseAddress = new Uri($"{_options.BaseUrl}/products/");
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace CE.Assessment.BusinessLogic.Services
         {
             try
             {
-                var requestUri = $"/{merchantProductNo}?apiKey={_options.ApiKey}";
+                var requestUri = $"{merchantProductNo}?apiKey={_options.ApiKey}";
 
                 var serializedDoc = JsonConvert.SerializeObject(patchDoc);
                 using var request = new HttpRequestMessage(HttpMethod.Patch, requestUri);
