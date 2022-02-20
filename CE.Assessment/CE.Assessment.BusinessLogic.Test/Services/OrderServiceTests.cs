@@ -37,6 +37,11 @@ namespace CE.Assessment.BusinessLogic.Test.Services
                     ApiKey = "apiKey"
                 });
 
+            var responseModel = new
+            {
+                Content = model
+            };
+
             var messageHandlerMock = new Mock<HttpMessageHandler>();
             messageHandlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
@@ -44,7 +49,7 @@ namespace CE.Assessment.BusinessLogic.Test.Services
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = httpStatusCode,
-                    Content = new StringContent(JsonConvert.SerializeObject(model))
+                    Content = new StringContent(JsonConvert.SerializeObject(responseModel))
                 });
 
             _httpClient = new HttpClient(messageHandlerMock.Object);

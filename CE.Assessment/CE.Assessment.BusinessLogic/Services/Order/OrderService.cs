@@ -14,7 +14,12 @@ namespace CE.Assessment.BusinessLogic.Services
         {
             _httpClient = httpClient;
             _options = options.Value;
-            _httpClient.BaseAddress = new Uri($"{_options.BaseUrl}/orders?apikey={_options.ApiKey}");
+            _httpClient.BaseAddress = new Uri($"{_options.BaseUrl}/orders");
+        }
+
+        public class ContentModel
+        {
+            public List<OrderDetail> Content { get; set; }
         }
 
         /// <summary>
@@ -25,15 +30,15 @@ namespace CE.Assessment.BusinessLogic.Services
         {
             try
             {
-                var request = $"?statuses=IN_PROGRESS";
+                var request = $"?statuses=IN_PROGRESS&apikey={_options.ApiKey}";
                 using var httpRequest = new HttpRequestMessage(HttpMethod.Get, request);
                 using var httpResponse = await _httpClient.SendAsync(httpRequest);
 
                 if (httpResponse.IsSuccessStatusCode)
                 {
                     var content = await httpResponse.Content.ReadAsStringAsync();
-                    var orderDetails = JsonConvert.DeserializeObject<List<OrderDetail>>(content);
-                    return orderDetails;
+                    var model = JsonConvert.DeserializeObject<ContentModel>(content);
+                    return model is not null ? model.Content : Enumerable.Empty<OrderDetail>();
                 } else
                 {
                     return Enumerable.Empty<OrderDetail>();
@@ -84,9 +89,20 @@ namespace CE.Assessment.BusinessLogic.Services
                     orderProducts.Add(orderProduct.Value);
                 }
 
-                return orderProducts
+                var top5Products = orderProducts
                     .OrderByDescending(x => x.TotalQuantity)
-                    .Take(5);
+                    .Take(5)
+                    .ToList();
+
+                if(top5Products.Count() < 5)
+                {
+                    for(int i = 0;i < 5 - top5Products.Count(); i++)
+                    {
+                        top5Products.Add(new OrderProduct("", "", "", 0));
+                    }
+                }
+
+                return top5Products;
             }
             catch (Exception ex)
             {

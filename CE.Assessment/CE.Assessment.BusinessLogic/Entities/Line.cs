@@ -20,11 +20,11 @@ namespace CE.Assessment.BusinessLogic.Entities
         public double OriginalUnitVat { get; set; }
         public double OriginalLineTotalInclVat { get; set; }
         public double OriginalLineVat { get; set; }
-        public int OriginalFeeFixed { get; set; }
+        public double OriginalFeeFixed { get; set; }
         public string BundleProductMerchantProductNo { get; set; }
         public string JurisCode { get; set; }
         public string JurisName { get; set; }
-        public int VatRate { get; set; }
+        public double VatRate { get; set; }
         public List<object> ExtraData { get; set; }
         public string ChannelProductNo { get; set; }
         public string MerchantProductNo { get; set; }
