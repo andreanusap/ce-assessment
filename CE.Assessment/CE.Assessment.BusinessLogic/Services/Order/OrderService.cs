@@ -94,7 +94,7 @@ namespace CE.Assessment.BusinessLogic.Services
                     .Take(5)
                     .ToList();
 
-                if(top5Products.Count() < 5) //populate products when there is less than 5 elements
+                if(top5Products.Count() < 5) //populate empty products when there are less than 5 elements
                 {
                     for(int i = 0;i < 5 - top5Products.Count(); i++)
                     {

@@ -18,6 +18,6 @@
         public string PaymentMethod { get; set; }
         public string ShippingCostsInclVat { get; set; }
         public string CurrencyCode { get; set; }
-        public DateTime OrderDate { get; set; }
+        public string OrderDate { get; set; }
     }
 }

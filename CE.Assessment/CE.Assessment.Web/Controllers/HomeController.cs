@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using CE.Assessment.BusinessLogic.Entities;
 using CE.Assessment.BusinessLogic.Services;
 using CE.Assessment.Web.Models;
 using Microsoft.AspNetCore.JsonPatch;

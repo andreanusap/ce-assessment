@@ -2,14 +2,13 @@
     ViewData["Title"] = "Orders";
 }
 
-<h1 class="display-4">Order List</h1>
+<h1 class="display-4">In Progress Order List</h1>
 <table class="table">
     <tr>
         <th>Channel Order No</th>
         <th>Merchant Order No</th>
         <th>Payment Method</th>
         <th>Order Date</th>
-        <th>Status</th>
         <th>Sub Total Vat</th>
         <th>Sub Total Incl Vat</th>
         <th>Shipping Cost Vat</th>
@@ -24,7 +23,6 @@
         <td>@item.MerchantOrderNo</td>
         <td>@item.PaymentMethod</td>
         <td>@item.OrderDate</td>
-        <td>@item.Status</td>
         <td>@item.SubTotalVat</td>
         <td>@item.SubTotalInclVat</td>
         <td>@item.ShippingCostsVat</td>

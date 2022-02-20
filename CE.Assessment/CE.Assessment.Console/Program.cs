@@ -1,9 +1,7 @@
-﻿using CE.Assessment.BusinessLogic.Entities;
-using CE.Assessment.BusinessLogic.Services;
+﻿using CE.Assessment.BusinessLogic.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Options = CE.Assessment.BusinessLogic.Entities.Options;
 
@@ -19,13 +17,14 @@ public class Program
 
         var serviceProvider = services.BuildServiceProvider();
 
-        //Get IN PROGRESS orders
+        ///Get IN PROGRESS orders
         var orderService = serviceProvider.GetService<IOrderService>();
         var result = orderService.GetInProgressOrders().GetAwaiter().GetResult();
         Console.WriteLine("IN PROGRESS Orders");
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        ///End get IN PROGRESS orders
 
-        //Get Top 5 Ordered Products
+        ///Get Top 5 Ordered Products
         var top5 = orderService.GetTop5OrderedProducts(result).GetAwaiter().GetResult();
         Console.WriteLine();
         Console.WriteLine("Top 5 Ordered Products");
@@ -35,8 +34,9 @@ public class Program
                 $"GTIN = {top5.ElementAt(i).Gtin} || " +
                 $"Qty = {top5.ElementAt(i).TotalQuantity}");
         }
+        ///End get top 5 ordered products
 
-        //Update stock of selected product
+        ///Update stock of selected product
         Console.WriteLine();
         Console.WriteLine("Please Select Product to update (1-5):");
         string productNo = Console.ReadLine();
@@ -61,7 +61,7 @@ public class Program
         {
             Console.WriteLine("Invalid number or input");
         }
-        
+        ///End update stock
     }
 
     private static void ConfigureServices(IServiceCollection services)
@@ -75,6 +75,6 @@ public class Program
 
         services.AddHttpClient();
         services.AddTransient<IOrderService, OrderService>();
-        services.AddTransient<IProductService,ProductService>();
+        services.AddTransient<IProductService, ProductService>();
     }
 }

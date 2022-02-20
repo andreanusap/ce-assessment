@@ -35,15 +35,9 @@ namespace CE.Assessment.BusinessLogic.Services
                 using var request = new HttpRequestMessage(HttpMethod.Patch, requestUri);
                 request.Content = new StringContent(serializedDoc, Encoding.UTF8);
                 using var httpResponse = await _httpClient.SendAsync(request);
-                if (httpResponse.IsSuccessStatusCode)
-                {
-                    var content = await httpResponse.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<PatchResponse>(content);
-                }
-                else
-                {
-                    return new PatchResponse();
-                }
+                var content = await httpResponse.Content.ReadAsStringAsync();
+
+                return JsonConvert.DeserializeObject<PatchResponse>(content);
             }
             catch (Exception ex)
             {
