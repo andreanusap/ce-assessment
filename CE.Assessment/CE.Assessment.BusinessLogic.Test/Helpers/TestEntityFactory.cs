@@ -2,6 +2,7 @@
 using CE.Assessment.BusinessLogic.Entities;
 using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace CE.Assessment.BusinessLogic.Test.Helpers
 {
@@ -60,6 +61,30 @@ namespace CE.Assessment.BusinessLogic.Test.Helpers
             }
 
             return orders;
+        }
+
+        /// <summary>
+        /// Create mock of patch response
+        /// </summary>
+        /// <param name="httpStatusCode">Http status code</param>
+        /// <returns>Patch response</returns>
+        public static PatchResponse CreatePatchResponse(HttpStatusCode httpStatusCode)
+        {
+            switch (httpStatusCode)
+            {
+                case HttpStatusCode.OK:
+                    return Fixture.Build<PatchResponse>()
+                        .With(x => x.Success, true)
+                        .With(x => x.StatusCode, 200)
+                        .Create();
+                case HttpStatusCode.InternalServerError:
+                    return Fixture.Build<PatchResponse>()
+                        .With(x => x.Success, false)
+                        .With(x => x.StatusCode, 500)
+                        .Create();
+                default:
+                    return Fixture.Create<PatchResponse>();
+            }
         }
     }
 }

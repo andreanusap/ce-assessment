@@ -17,6 +17,10 @@ namespace CE.Assessment.BusinessLogic.Services
             _httpClient.BaseAddress = new Uri($"{_options.BaseUrl}/orders?apikey={_options.ApiKey}");
         }
 
+        /// <summary>
+        /// Get In Progress orders
+        /// </summary>
+        /// <returns>List of orders</returns>
         public async Task<IEnumerable<OrderDetail>> GetInProgressOrders()
         {
             try
