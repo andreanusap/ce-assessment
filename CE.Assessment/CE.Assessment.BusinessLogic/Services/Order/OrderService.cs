@@ -94,11 +94,11 @@ namespace CE.Assessment.BusinessLogic.Services
                     .Take(5)
                     .ToList();
 
-                if(top5Products.Count() < 5)
+                if(top5Products.Count() < 5) //populate products when there is less than 5 elements
                 {
                     for(int i = 0;i < 5 - top5Products.Count(); i++)
                     {
-                        top5Products.Add(new OrderProduct("", "", "", 0));
+                        top5Products.Add(new OrderProduct("", "-", "-", 0));
                     }
                 }
 
