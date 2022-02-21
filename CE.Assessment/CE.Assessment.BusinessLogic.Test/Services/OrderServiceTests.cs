@@ -27,7 +27,9 @@ namespace CE.Assessment.BusinessLogic.Test.Services
         {
         }
 
-        private void InitService(IEnumerable<OrderDetail> model = null, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
+        private void InitService(IEnumerable<OrderDetail> orderDetailList = null,
+            OrderResponse orderResponse = null,
+            HttpStatusCode httpStatusCode = HttpStatusCode.OK)
         {
             mockOptions = new Mock<IOptions<Options>>();
             mockOptions.Setup(o => o.Value)
@@ -37,10 +39,19 @@ namespace CE.Assessment.BusinessLogic.Test.Services
                     ApiKey = "apiKey"
                 });
 
-            var responseModel = new
+            object responseModel = null;
+
+            if (orderDetailList is not null)
             {
-                Content = model
-            };
+                responseModel = new
+                {
+                    Content = orderDetailList
+                };
+            }
+            else if(orderResponse is not null)
+            {
+                responseModel = orderResponse;
+            }
 
             var messageHandlerMock = new Mock<HttpMessageHandler>();
             messageHandlerMock.Protected()
@@ -57,11 +68,11 @@ namespace CE.Assessment.BusinessLogic.Test.Services
         }
 
         [Fact]
-        public async Task ShouldReturnOrderDetails_WhenHttpClientSuccess()
+        public async Task ShouldReturnOrderDetails_WhenGetInProgressOrdersSuccess()
         {
             //Arrange
             var orderDetails = TestEntityFactory.CreateOrderDetails();
-            InitService(orderDetails, HttpStatusCode.OK);
+            InitService(orderDetailList: orderDetails, httpStatusCode: HttpStatusCode.OK);
 
             //Act
             var result = await _orderService.GetInProgressOrders();
@@ -71,7 +82,7 @@ namespace CE.Assessment.BusinessLogic.Test.Services
         }
 
         [Fact]
-        public async Task ShouldReturnEmpty_WhenHttpClientReturnsError()
+        public async Task ShouldReturnEmpty_WhenWhenGetInProgressOrdersFails()
         {
             //Arrange
             InitService(httpStatusCode: HttpStatusCode.InternalServerError);
@@ -88,7 +99,7 @@ namespace CE.Assessment.BusinessLogic.Test.Services
         {
             //Arrange
             var orderDetails = TestEntityFactory.CreateOrderDetails(maxQuantity: 20);
-            InitService(model: orderDetails);
+            InitService(orderDetailList: orderDetails);
 
             //Act
             var result = await _orderService.GetTop5OrderedProducts(orderDetails);
@@ -107,13 +118,49 @@ namespace CE.Assessment.BusinessLogic.Test.Services
         {
             //Arrange
             var orderDetails = new List<OrderDetail>();
-            InitService(model: orderDetails);
+            InitService(orderDetailList: orderDetails);
 
             //Act
             var result = await _orderService.GetTop5OrderedProducts(orderDetails);
 
             //Assert
             result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task ShouldReturnOrderResponse_WhenGetOrdersSuccess()
+        {
+            //Arrange
+            var orderDetails = TestEntityFactory.CreateOrderDetails();
+            var orderResponse = new OrderResponse()
+            {
+                Content = orderDetails.ToList(),
+                Count = 1
+            };
+            InitService(orderResponse: orderResponse, httpStatusCode: HttpStatusCode.OK);
+
+            //Act
+            var result = await _orderService.GetOrders(It.IsAny<string[]>(), It.IsAny<int>());
+
+            //Assert
+            result.Should().BeOfType<OrderResponse>();
+            result.Content.Should().NotBeNullOrEmpty();
+            result.Count.Should().BeGreaterThanOrEqualTo(1);
+        }
+
+        [Fact]
+        public async Task ShouldReturnEmpty_WhenGetOrdersFails()
+        {
+            //Arrange
+            InitService(httpStatusCode: HttpStatusCode.InternalServerError);
+
+            //Act
+            var result = await _orderService.GetOrders(It.IsAny<string[]>(), It.IsAny<int>());
+
+            //Assert
+            result.Should().BeOfType<OrderResponse>();
+            result.Content.Should().BeNullOrEmpty();
+            result.Count.Should().Be(0);
         }
     }
 }

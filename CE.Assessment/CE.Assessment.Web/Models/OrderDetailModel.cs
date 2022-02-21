@@ -19,5 +19,8 @@
         public string ShippingCostsInclVat { get; set; }
         public string CurrencyCode { get; set; }
         public string OrderDate { get; set; }
+        public BillingAddressModel BillingAddress { get; set; }
+        public ShippingAddressModel ShippingAddress { get; set; }
+        public List<LineModel> Lines { get; set; }
     }
 }

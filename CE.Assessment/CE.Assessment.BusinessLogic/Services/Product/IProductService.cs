@@ -1,7 +1,4 @@
-﻿using CE.Assessment.BusinessLogic.Entities;
-using Microsoft.AspNetCore.JsonPatch;
-
-namespace CE.Assessment.BusinessLogic.Services
+﻿namespace CE.Assessment.BusinessLogic.Services
 {
     public interface IProductService
     {

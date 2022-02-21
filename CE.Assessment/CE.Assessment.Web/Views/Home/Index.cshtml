@@ -3,7 +3,10 @@
 }
 
 <h1 class="display-4">In Progress Order List</h1>
-<table class="table">
+
+@using (Html.BeginForm("Index", "Home", FormMethod.Post))
+{
+<table class="table-bordered">
     <tr>
         <th>Channel Order No</th>
         <th>Merchant Order No</th>
@@ -16,7 +19,7 @@
         <th>Total Vat</th>
         <th>Total Incl Vat</th>
     </tr>
-    @foreach(var item in Model)
+    @foreach(var item in Model.OrderDetails)
     {
         <tr>
         <td>@item.ChannelOrderNo</td>
@@ -32,3 +35,32 @@
         </tr>
     }
 </table>
+<div>
+    <a>Page</a>
+    <table cellpadding="0" cellspacing="0">
+        <tr>
+            @for (int i = 1; i <= Model.PageCount; i++)
+            {
+                <td>
+                    @if (i != Model.CurrentPage)
+                    {
+                        <a href="javascript:PagerClick(@i);">@i</a>
+                    }
+                    else
+                    {
+                        <span>@i</span>
+                    }
+                </td>
+            }
+        </tr>
+    </table>
+    <input type="hidden" id="hfCurrentPageIndex" name="currentPageIndex"/>
+</div>
+}
+
+<script type="text/javascript">
+    function PagerClick(index) {
+        document.getElementById("hfCurrentPageIndex").value = index;
+        document.forms[0].submit();
+    }
+</script>

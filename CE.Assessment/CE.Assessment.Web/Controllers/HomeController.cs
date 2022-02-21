@@ -26,11 +26,13 @@ namespace CE.Assessment.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var orderDetails = await _orderService.GetInProgressOrders();
+            return View(await GetOrders(1));
+        }
 
-            var model = _mapper.Map<List<OrderDetailModel>>(orderDetails);
-
-            return View(model);
+        [HttpPost]
+        public async Task<ActionResult> Index(int currentPageIndex)
+        {
+            return View(await GetOrders(currentPageIndex));
         }
 
         public async Task<IActionResult> TopProducts()
@@ -55,6 +57,26 @@ namespace CE.Assessment.Web.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private async Task<OrderViewModel> GetOrders(int page)
+        {
+            var statuses = new string[] { "IN_PROGRESS" };
+            
+            var orderDetails = await _orderService.GetOrders(statuses: statuses, page: page);
+
+            if(orderDetails is not null && orderDetails.Count > 0)
+            {
+                double pageCount = orderDetails.TotalCount / orderDetails.Count;
+                var model = _mapper.Map<OrderViewModel>(orderDetails);
+                model.CurrentPage = page;
+                model.PageCount = (int)Math.Ceiling(pageCount);
+                return model;
+            }
+            else
+            {
+                return _mapper.Map<OrderViewModel>(orderDetails);
+            }
         }
     }
 }

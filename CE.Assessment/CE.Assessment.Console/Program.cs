@@ -19,6 +19,7 @@ public class Program
         ///Get IN PROGRESS orders
         var orderService = serviceProvider.GetService<IOrderService>();
         var result = orderService.GetInProgressOrders().GetAwaiter().GetResult();
+
         Console.WriteLine("IN PROGRESS Orders");
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         ///End get IN PROGRESS orders
@@ -48,6 +49,7 @@ public class Program
                 var productService = serviceProvider.GetService<IProductService>();
                 var response = productService.UpdateStock(merchatProductNo, 25).GetAwaiter().GetResult();
                 Console.WriteLine(response ? "Update Success" : "Update Failed");
+                Console.ReadKey();
             }
             else
             {
