@@ -19,12 +19,3 @@
         </tr>
     }
 </table>
-@if (ViewBag.Message != null)
-{
-    <script type="text/javascript">
-        window.onload = function () {
-            $("#lblInfo").html('@Html.Raw(ViewBag.Message)');
-            $("#MyPopup").modal("show");
-        };
-    </script>
-}

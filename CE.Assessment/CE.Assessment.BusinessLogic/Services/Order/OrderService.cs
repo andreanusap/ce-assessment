@@ -110,5 +110,59 @@ namespace CE.Assessment.BusinessLogic.Services
                 throw;
             }
         }
+
+        /// <summary>
+        /// Get orders by status and page
+        /// </summary>
+        /// <param name="statuses">List of status</param>
+        /// <param name="page">Page</param>
+        /// <returns>Order response</returns>
+        public async Task<OrderResponse> GetOrders(string[] statuses = null, int page = 1)
+        {
+            try
+            {
+                var request = $"?apikey={_options.ApiKey}";
+                request += BuildRequestParameter(statuses: statuses, page: page);
+
+                using var httpRequest = new HttpRequestMessage(HttpMethod.Get, request);
+                using var httpResponse = await _httpClient.SendAsync(httpRequest);
+
+                if (httpResponse.IsSuccessStatusCode)
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    var model = JsonConvert.DeserializeObject<OrderResponse>(content);
+                    return model is not null ? model : new OrderResponse();
+                }
+                else
+                {
+                    return new OrderResponse();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        private string BuildRequestParameter(string[] statuses = null, int page = 1)
+        {
+            var requestParam = string.Empty;
+
+            if(statuses is not null && statuses.Length > 0)
+            {
+                for(int i = 0; i < statuses.Length; i++)
+                {
+                    requestParam += $"&statuses={statuses[i]}";
+                }
+            }
+
+            if(page > 1)
+            {
+                requestParam += $"&page={page}";
+            }
+
+            return requestParam;
+        }
     }
 }
