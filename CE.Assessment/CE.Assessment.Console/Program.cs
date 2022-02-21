@@ -1,5 +1,4 @@
 ﻿using CE.Assessment.BusinessLogic.Services;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -47,10 +46,8 @@ public class Program
             if (!string.IsNullOrWhiteSpace(merchatProductNo))
             {
                 var productService = serviceProvider.GetService<IProductService>();
-                var patchDoc = new JsonPatchDocument();
-                patchDoc.Replace("/Stock", 25);
-                var response = productService.UpdateProduct(merchatProductNo, patchDoc).GetAwaiter().GetResult();
-                Console.WriteLine(response.Success ? "Update Success" : "Update Failed");
+                var response = productService.UpdateStock(merchatProductNo, 25).GetAwaiter().GetResult();
+                Console.WriteLine(response ? "Update Success" : "Update Failed");
             }
             else
             {
