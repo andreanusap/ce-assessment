@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using CE.Assessment.BusinessLogic.Entities;
 using CE.Assessment.BusinessLogic.Services;
 using CE.Assessment.Web.Models;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -49,9 +47,7 @@ namespace CE.Assessment.Web.Controllers
                 return NotFound();
             }
 
-            var patchDoc = new JsonPatchDocument();
-            patchDoc.Replace("/Stock", 25);
-            var result = await _productService.UpdateProduct(id, patchDoc);
+            var result = await _productService.UpdateStock(id, 25);
             return View(result);
         }
 

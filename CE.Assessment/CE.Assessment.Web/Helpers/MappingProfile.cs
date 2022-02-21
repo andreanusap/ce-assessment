@@ -14,7 +14,8 @@ namespace CE.Assessment.Web.Helpers
                 .ForMember(d => d.SubTotalInclVat, o => o.MapFrom(s => $"{s.CurrencyCode} {s.SubTotalInclVat}"))
                 .ForMember(d => d.SubTotalVat, o => o.MapFrom(s => $"{s.CurrencyCode} {s.SubTotalVat}"))
                 .ForMember(d => d.TotalVat, o => o.MapFrom(s => $"{s.CurrencyCode} {s.TotalVat}"))
-                .ForMember(d => d.TotalInclVat, o => o.MapFrom(s => $"{s.CurrencyCode} {s.TotalInclVat}"));
+                .ForMember(d => d.TotalInclVat, o => o.MapFrom(s => $"{s.CurrencyCode} {s.TotalInclVat}"))
+                .ForMember(d => d.OrderDate, o => o.MapFrom(s => s.OrderDate.ToString("dd/MM/yyyy")));
         }
     }
 }

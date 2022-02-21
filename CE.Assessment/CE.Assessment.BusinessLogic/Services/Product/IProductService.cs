@@ -5,6 +5,6 @@ namespace CE.Assessment.BusinessLogic.Services
 {
     public interface IProductService
     {
-        public Task<PatchResponse> UpdateProduct(string merchantProductNo, JsonPatchDocument patchDoc);
+        public Task<bool> UpdateStock(string merchantProductNo, int stock);
     }
 }
