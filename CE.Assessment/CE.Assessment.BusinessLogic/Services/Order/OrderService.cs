@@ -67,42 +67,15 @@ namespace CE.Assessment.BusinessLogic.Services
                     return orderProducts;
                 }
 
-                var dOrderProduct = new Dictionary<string, OrderProduct>();
-
-                foreach(var order in orderDetails)
-                {
-                    foreach(var line in order.Lines)
-                    {
-                        if (dOrderProduct.ContainsKey(line.MerchantProductNo))
-                        {
-                            dOrderProduct[line.MerchantProductNo].TotalQuantity += line.Quantity;
-                        } else
-                        {
-                            dOrderProduct.Add(line.MerchantProductNo,
-                                new OrderProduct(line.MerchantProductNo, line.Description, line.Gtin, line.Quantity));
-                        }
-                    }
-                }
-
-                foreach(var orderProduct in dOrderProduct)
-                {
-                    orderProducts.Add(orderProduct.Value);
-                }
-
-                var top5Products = orderProducts
-                    .OrderByDescending(x => x.TotalQuantity)
+                var lines = orderDetails.SelectMany(o => o.Lines).ToList();
+                return lines.GroupBy(l => l.MerchantProductNo)
+                    .Select(r => new OrderProduct(r.First().MerchantProductNo, 
+                        r.First().Description,
+                        r.First().Gtin, 
+                        r.Sum(c => c.Quantity)))
+                    .OrderByDescending(p => p.TotalQuantity)
                     .Take(5)
                     .ToList();
-
-                if(top5Products.Count() < 5) //populate empty products when there are less than 5 elements
-                {
-                    for(int i = 0;i < 5 - top5Products.Count(); i++)
-                    {
-                        top5Products.Add(new OrderProduct("", "-", "-", 0));
-                    }
-                }
-
-                return top5Products;
             }
             catch (Exception ex)
             {

@@ -30,9 +30,12 @@ public class Program
         Console.WriteLine("Top 5 Ordered Products");
         for(int i = 0; i < 5; i++)
         {
-            Console.WriteLine($"{i + 1}. Product Name = {top5.ElementAt(i).ProductName} || " +
-                $"GTIN = {top5.ElementAt(i).Gtin} || " +
-                $"Qty = {top5.ElementAt(i).TotalQuantity}");
+            if (top5.ElementAtOrDefault(i) is not null)
+            {
+                Console.WriteLine($"{i + 1}. Product Name = {top5.ElementAt(i).ProductName} || " +
+                    $"GTIN = {top5.ElementAt(i).Gtin} || " +
+                    $"Qty = {top5.ElementAt(i).TotalQuantity}");
+            }
         }
         ///End get top 5 ordered products
 
