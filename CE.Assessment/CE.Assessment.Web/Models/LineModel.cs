@@ -3,6 +3,6 @@
     public class LineModel
     {
         public string Description { get; set; }
-        public double UnitVat { get; set; }
+        public decimal UnitVat { get; set; }
     }
 }
