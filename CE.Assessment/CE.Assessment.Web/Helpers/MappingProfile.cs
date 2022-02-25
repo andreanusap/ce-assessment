@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using CE.Assessment.BusinessLogic.Entities;
 using CE.Assessment.Web.Models;
 
 namespace CE.Assessment.Web.Helpers
@@ -8,7 +7,7 @@ namespace CE.Assessment.Web.Helpers
     {
         public MappingProfile()
         {
-            CreateMap<OrderDetail, OrderDetailModel>()
+            CreateMap<OrderDetailModel, OrderDetailViewModel>()
                 .ForMember(d => d.ShippingCostsInclVat, o => o.MapFrom(s => $"{s.CurrencyCode} {s.ShippingCostsInclVat}"))
                 .ForMember(d => d.ShippingCostsVat, o => o.MapFrom(s => $"{s.CurrencyCode} {s.ShippingCostsVat}"))
                 .ForMember(d => d.SubTotalInclVat, o => o.MapFrom(s => $"{s.CurrencyCode} {s.SubTotalInclVat}"))
@@ -17,14 +16,8 @@ namespace CE.Assessment.Web.Helpers
                 .ForMember(d => d.TotalInclVat, o => o.MapFrom(s => $"{s.CurrencyCode} {s.TotalInclVat}"))
                 .ForMember(d => d.OrderDate, o => o.MapFrom(s => s.OrderDate.ToString("dd/MM/yyyy")));
 
-            CreateMap<OrderResponse, OrderViewModel>()
+            CreateMap<OrderResponseModel, OrderViewModel>()
                 .ForMember(d => d.OrderDetails, o => o.MapFrom(s => s.Content));
-
-            CreateMap<ShippingAddress, ShippingAddressModel>();
-
-            CreateMap<BillingAddress, BillingAddressModel>();
-
-            CreateMap<Line, LineModel>(); 
         }
     }
 }

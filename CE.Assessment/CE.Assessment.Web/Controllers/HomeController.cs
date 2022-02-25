@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using CE.Assessment.BusinessLogic.Entities;
-using CE.Assessment.BusinessLogic.Services;
 using CE.Assessment.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -32,7 +30,7 @@ namespace CE.Assessment.Web.Controllers
 
         public async Task<IActionResult> TopProducts()
         {
-            var topProducts = new List<OrderProduct>();
+            var topProducts = new List<OrderProductViewModel>();
 
             using(var client = new HttpClient())
             {
@@ -41,7 +39,7 @@ namespace CE.Assessment.Web.Controllers
 
                 if (responseMessage.IsSuccessStatusCode)
                 {
-                    var content = await responseMessage.Content.ReadAsAsync<IEnumerable<OrderProduct>>();
+                    var content = await responseMessage.Content.ReadAsAsync<IEnumerable<OrderProductViewModel>>();
 
                     if (content is not null && content.Any())
                     {
@@ -90,7 +88,7 @@ namespace CE.Assessment.Web.Controllers
 
                 if (responseMessage.IsSuccessStatusCode)
                 {
-                    var orderDetails = await responseMessage.Content.ReadAsAsync<OrderResponse>();
+                    var orderDetails = await responseMessage.Content.ReadAsAsync<OrderResponseModel>();
 
                     if (orderDetails is not null && orderDetails.Count > 0)
                     {
