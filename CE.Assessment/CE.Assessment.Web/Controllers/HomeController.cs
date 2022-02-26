@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace CE.Assessment.Web.Controllers
@@ -38,6 +39,7 @@ namespace CE.Assessment.Web.Controllers
             using(var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(_options.Value.BaseUrl);
+                client.DefaultRequestHeaders.Add("XApiKey", _options.Value.XApiKey);
                 var responseMessage = await client.GetAsync("order/top5-ordered");
 
                 if (responseMessage.IsSuccessStatusCode)
@@ -66,7 +68,8 @@ namespace CE.Assessment.Web.Controllers
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(_options.Value.BaseUrl);
-                
+                client.DefaultRequestHeaders.Add("XApiKey", _options.Value.XApiKey);
+
                 var productStockRequest = new ProductStockRequest
                 {
                     MerchantProductNo = id,
@@ -97,6 +100,7 @@ namespace CE.Assessment.Web.Controllers
             using(var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(_options.Value.BaseUrl);
+                client.DefaultRequestHeaders.Add("XApiKey", _options.Value.XApiKey);
                 var responseMessage = await client.GetAsync("order");
 
                 if (responseMessage.IsSuccessStatusCode)
