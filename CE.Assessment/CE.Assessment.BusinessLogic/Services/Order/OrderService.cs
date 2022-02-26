@@ -1,25 +1,18 @@
 ﻿using CE.Assessment.BusinessLogic.Entities;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Options = CE.Assessment.BusinessLogic.Entities.Options;
+using CE.Assessment.BusinessLogic.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace CE.Assessment.BusinessLogic.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly HttpClient _httpClient;
-        private readonly Options _options;
+        private readonly IHttpClientHelper _httpClientHelper;
+        private readonly ILogger<OrderService> _logger;
 
-        public OrderService(HttpClient httpClient, IOptions<Options> options) 
+        public OrderService(IHttpClientHelper httpClientHelper, ILogger<OrderService> logger) 
         {
-            _httpClient = httpClient;
-            _options = options.Value;
-            _httpClient.BaseAddress = new Uri($"{_options.BaseUrl}/orders");
-        }
-
-        public class ContentModel
-        {
-            public List<OrderDetail> Content { get; set; }
+            _httpClientHelper = httpClientHelper;
+            _logger = logger;
         }
 
         /// <summary>
@@ -30,24 +23,13 @@ namespace CE.Assessment.BusinessLogic.Services
         {
             try
             {
-                var request = $"?statuses=IN_PROGRESS&apikey={_options.ApiKey}";
-                using var httpRequest = new HttpRequestMessage(HttpMethod.Get, request);
-                using var httpResponse = await _httpClient.SendAsync(httpRequest);
-
-                if (httpResponse.IsSuccessStatusCode)
-                {
-                    var content = await httpResponse.Content.ReadAsStringAsync();
-                    var model = JsonConvert.DeserializeObject<ContentModel>(content);
-                    return model is not null ? model.Content : Enumerable.Empty<OrderDetail>();
-                } else
-                {
-                    return Enumerable.Empty<OrderDetail>();
-                }
+                var model = await _httpClientHelper.HttpGet<OrderResponse>("orders", "&statuses=IN_PROGRESS");
+                return model.Content;
             }
             catch (Exception ex)
-            { 
-                Console.Error.WriteLine(ex.Message);
-                throw;
+            {
+                _logger.LogError(ex, "Get In Progress service failed");
+                return null;
             }
         }
 
@@ -79,8 +61,8 @@ namespace CE.Assessment.BusinessLogic.Services
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
-                throw;
+                _logger.LogError(ex, "Get Top 5 Ordered Products service failed");
+                return null;
             }
         }
 
@@ -94,30 +76,22 @@ namespace CE.Assessment.BusinessLogic.Services
         {
             try
             {
-                var request = $"?apikey={_options.ApiKey}";
-                request += BuildRequestParameter(statuses: statuses, page: page);
-
-                using var httpRequest = new HttpRequestMessage(HttpMethod.Get, request);
-                using var httpResponse = await _httpClient.SendAsync(httpRequest);
-
-                if (httpResponse.IsSuccessStatusCode)
-                {
-                    var content = await httpResponse.Content.ReadAsStringAsync();
-                    var model = JsonConvert.DeserializeObject<OrderResponse>(content);
-                    return model is not null ? model : new OrderResponse();
-                }
-                else
-                {
-                    return new OrderResponse();
-                }
+                var requestParam = BuildRequestParameter(statuses: statuses, page: page);
+                return await _httpClientHelper.HttpGet<OrderResponse>("orders", requestParam);
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
-                throw;
+                _logger.LogError(ex, "Get Orders service failed");
+                return null;
             }
         }
 
+        /// <summary>
+        /// Build request parameters
+        /// </summary>
+        /// <param name="statuses">Array of status</param>
+        /// <param name="page">Page number</param>
+        /// <returns>String of request parameter</returns>
         private string BuildRequestParameter(string[] statuses = null, int page = 1)
         {
             var requestParam = string.Empty;

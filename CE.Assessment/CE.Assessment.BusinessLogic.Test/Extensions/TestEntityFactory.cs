@@ -3,7 +3,7 @@ using CE.Assessment.BusinessLogic.Entities;
 using System;
 using System.Collections.Generic;
 
-namespace CE.Assessment.BusinessLogic.Test.Helpers
+namespace CE.Assessment.BusinessLogic.Test.Extensions
 {
     public class TestEntityFactory
     {
@@ -60,6 +60,15 @@ namespace CE.Assessment.BusinessLogic.Test.Helpers
             }
 
             return orders;
+        }
+
+        /// <summary>
+        /// Create mock of Product Stock Request list
+        /// </summary>
+        /// <returns>List of Product stock request</returns>
+        public static IEnumerable<ProductStockRequest> CreateProductStockRequests()
+        {
+            return Fixture.Create<IEnumerable<ProductStockRequest>>();
         }
     }
 }

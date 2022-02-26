@@ -1,4 +1,5 @@
 using CE.Assessment.BusinessLogic.Entities;
+using CE.Assessment.BusinessLogic.Helpers;
 using CE.Assessment.BusinessLogic.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,7 @@ void ConfigureServices(IServiceCollection services)
     services.Configure<Options>(configuration.GetSection("ApiSettings"));
 
     services.AddHttpClient();
+    services.AddSingleton<IHttpClientHelper, HttpClientHelper>();
     services.AddTransient<IOrderService, OrderService>();
     services.AddTransient<IProductService, ProductService>();
 }
