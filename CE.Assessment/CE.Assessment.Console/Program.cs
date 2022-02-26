@@ -1,8 +1,8 @@
-﻿using CE.Assessment.BusinessLogic.Services;
+﻿using CE.Assessment.BusinessLogic.Helpers;
+using CE.Assessment.BusinessLogic.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Options = CE.Assessment.BusinessLogic.Entities.Options;
+using Options = CE.Assessment.Shared.Entities.Options;
 
 public class Program
 {
@@ -16,27 +16,42 @@ public class Program
 
         var serviceProvider = services.BuildServiceProvider();
 
-        ///Get IN PROGRESS orders
+        #region "IN PROGRESS"
         var orderService = serviceProvider.GetService<IOrderService>();
         var result = orderService.GetInProgressOrders().GetAwaiter().GetResult();
 
         Console.WriteLine("IN PROGRESS Orders");
-        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
-        ///End get IN PROGRESS orders
-
-        ///Get Top 5 Ordered Products
-        var top5 = orderService.GetTop5OrderedProducts(result).GetAwaiter().GetResult();
         Console.WriteLine();
-        Console.WriteLine("Top 5 Ordered Products");
-        for(int i = 0; i < 5; i++)
-        {
-            Console.WriteLine($"{i + 1}. Product Name = {top5.ElementAt(i).ProductName} || " +
-                $"GTIN = {top5.ElementAt(i).Gtin} || " +
-                $"Qty = {top5.ElementAt(i).TotalQuantity}");
-        }
-        ///End get top 5 ordered products
 
-        ///Update stock of selected product
+        var table = new ConsoleTables.ConsoleTable("Channel Order No", "Merchant Order No", "Payment Method", "Order Date", "Sub Total Vat",
+            "Sub Total Incl Vat", "Shipping Cost Vat", "Shipping Cost Incl Vat", "Total Vat", "Total Incl Vat");
+        
+        result.ToList()
+            .ForEach(x => table.AddRow(x.ChannelOrderNo, x.MerchantOrderNo, x.PaymentMethod, x.OrderDate, x.SubTotalVat, x.SubTotalInclVat,
+            x.ShippingCostsVat, x.ShippingCostsInclVat, x.TotalVat, x.TotalInclVat));
+
+        table.Write();
+        Console.WriteLine();
+        #endregion
+
+        #region "Top 5 Products"
+        var top5 = orderService.GetTop5OrderedProducts(result).GetAwaiter().GetResult();
+        Console.WriteLine("Top 5 Ordered Products");
+        Console.WriteLine();
+
+        var table2 = new ConsoleTables.ConsoleTable("No.", "Merchant Product No", "Product Name", "Gtin", "Total Quantity");
+
+        var top5List = top5
+            .Select((value, index) => new { index, value.MerchantProductNo, value.ProductName, value.Gtin, value.TotalQuantity })
+            .ToList();
+
+        top5List.ForEach(x => table2.AddRow(x.index + 1, x.MerchantProductNo, x.ProductName, x.Gtin, x.TotalQuantity));
+
+        table2.Write();
+        Console.WriteLine();
+        #endregion
+
+        #region "Update"
         Console.WriteLine();
         Console.WriteLine("Please Select Product to update (1-5):");
         string productNo = Console.ReadLine();
@@ -60,7 +75,7 @@ public class Program
         {
             Console.WriteLine("Invalid number or input");
         }
-        ///End update stock
+        #endregion
     }
 
     private static void ConfigureServices(IServiceCollection services)
@@ -73,6 +88,7 @@ public class Program
         services.Configure<Options>(configuration.GetSection("ApiSettings"));
 
         services.AddHttpClient();
+        services.AddSingleton<IHttpClientHelper, HttpClientHelper>();
         services.AddTransient<IOrderService, OrderService>();
         services.AddTransient<IProductService, ProductService>();
     }

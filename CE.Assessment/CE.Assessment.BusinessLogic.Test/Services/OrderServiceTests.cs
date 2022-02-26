@@ -1,78 +1,42 @@
-﻿using CE.Assessment.BusinessLogic.Entities;
-using CE.Assessment.BusinessLogic.Services;
-using CE.Assessment.BusinessLogic.Test.Helpers;
+﻿using CE.Assessment.BusinessLogic.Services;
 using FluentAssertions;
 using System.Collections.Generic;
 using Xunit;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
-using System.Net.Http;
-using Moq.Protected;
-using System.Threading;
-using System.Net;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Options;
-using Options = CE.Assessment.BusinessLogic.Entities.Options;
+using CE.Assessment.BusinessLogic.Helpers;
+using Microsoft.Extensions.Logging;
+using System;
+using CE.Assessment.BusinessLogic.Test.Extensions;
+using CE.Assessment.Shared.Entities;
 
 namespace CE.Assessment.BusinessLogic.Test.Services
 {
     public class OrderServiceTests
     {
         private IOrderService _orderService;
-        private HttpClient _httpClient;
-        private Mock<IOptions<Options>> mockOptions;
-
-        public OrderServiceTests() 
-        {
-        }
-
-        private void InitService(IEnumerable<OrderDetail> orderDetailList = null,
-            OrderResponse orderResponse = null,
-            HttpStatusCode httpStatusCode = HttpStatusCode.OK)
-        {
-            mockOptions = new Mock<IOptions<Options>>();
-            mockOptions.Setup(o => o.Value)
-                .Returns(new Options
-                {
-                    BaseUrl = "https://test.com",
-                    ApiKey = "apiKey"
-                });
-
-            object responseModel = null;
-
-            if (orderDetailList is not null)
-            {
-                responseModel = new
-                {
-                    Content = orderDetailList
-                };
-            }
-            else if(orderResponse is not null)
-            {
-                responseModel = orderResponse;
-            }
-
-            var messageHandlerMock = new Mock<HttpMessageHandler>();
-            messageHandlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = httpStatusCode,
-                    Content = new StringContent(JsonConvert.SerializeObject(responseModel))
-                });
-
-            _httpClient = new HttpClient(messageHandlerMock.Object);
-            _orderService = new OrderService(_httpClient, mockOptions.Object);
-        }
+        private Mock<IHttpClientHelper> mockHttpClientHelper;
+        private Mock<ILogger<OrderService>> mockLogger;
 
         [Fact]
         public async Task ShouldReturnOrderDetails_WhenGetInProgressOrdersSuccess()
         {
             //Arrange
             var orderDetails = TestEntityFactory.CreateOrderDetails();
-            InitService(orderDetailList: orderDetails, httpStatusCode: HttpStatusCode.OK);
+            var content = new OrderResponse
+            {
+                Content = orderDetails.ToList()
+            };
+
+            mockHttpClientHelper = new Mock<IHttpClientHelper>();
+            mockLogger = new Mock<ILogger<OrderService>>();
+
+            mockHttpClientHelper
+                .Setup(s => s.HttpGet<OrderResponse>(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(content);
+
+            _orderService = new OrderService(mockHttpClientHelper.Object, mockLogger.Object);
 
             //Act
             var result = await _orderService.GetInProgressOrders();
@@ -82,16 +46,30 @@ namespace CE.Assessment.BusinessLogic.Test.Services
         }
 
         [Fact]
-        public async Task ShouldReturnEmpty_WhenWhenGetInProgressOrdersFails()
+        public async Task ShouldThrowException_WhenGetInProgressOrdersSuccess()
         {
             //Arrange
-            InitService(httpStatusCode: HttpStatusCode.InternalServerError);
+            var orderDetails = TestEntityFactory.CreateOrderDetails();
+            var content = new OrderResponse
+            {
+                Content = orderDetails.ToList()
+            };
+
+            mockHttpClientHelper = new Mock<IHttpClientHelper>();
+            mockLogger = new Mock<ILogger<OrderService>>();
+
+            mockHttpClientHelper
+                .Setup(s => s.HttpGet<OrderResponse>(It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new Exception());
+
+            _orderService = new OrderService(mockHttpClientHelper.Object, mockLogger.Object);
 
             //Act
             var result = await _orderService.GetInProgressOrders();
 
             //Assert
-            result.Should().BeEmpty();
+            result.Should().BeNull();
+            mockLogger.VerifyAtLeastOneLogMessagesContains("Get In Progress service failed");
         }
 
         [Fact]
@@ -99,7 +77,9 @@ namespace CE.Assessment.BusinessLogic.Test.Services
         {
             //Arrange
             var orderDetails = TestEntityFactory.CreateOrderDetails(maxQuantity: 20);
-            InitService(orderDetailList: orderDetails);
+            mockHttpClientHelper = new Mock<IHttpClientHelper>();
+            mockLogger = new Mock<ILogger<OrderService>>();
+            _orderService = new OrderService(mockHttpClientHelper.Object, mockLogger.Object);
 
             //Act
             var result = await _orderService.GetTop5OrderedProducts(orderDetails);
@@ -118,49 +98,15 @@ namespace CE.Assessment.BusinessLogic.Test.Services
         {
             //Arrange
             var orderDetails = new List<OrderDetail>();
-            InitService(orderDetailList: orderDetails);
+            mockHttpClientHelper = new Mock<IHttpClientHelper>();
+            mockLogger = new Mock<ILogger<OrderService>>();
+            _orderService = new OrderService(mockHttpClientHelper.Object, mockLogger.Object);
 
             //Act
             var result = await _orderService.GetTop5OrderedProducts(orderDetails);
 
             //Assert
             result.Should().BeEmpty();
-        }
-
-        [Fact]
-        public async Task ShouldReturnOrderResponse_WhenGetOrdersSuccess()
-        {
-            //Arrange
-            var orderDetails = TestEntityFactory.CreateOrderDetails();
-            var orderResponse = new OrderResponse()
-            {
-                Content = orderDetails.ToList(),
-                Count = 1
-            };
-            InitService(orderResponse: orderResponse, httpStatusCode: HttpStatusCode.OK);
-
-            //Act
-            var result = await _orderService.GetOrders(It.IsAny<string[]>(), It.IsAny<int>());
-
-            //Assert
-            result.Should().BeOfType<OrderResponse>();
-            result.Content.Should().NotBeNullOrEmpty();
-            result.Count.Should().BeGreaterThanOrEqualTo(1);
-        }
-
-        [Fact]
-        public async Task ShouldReturnEmpty_WhenGetOrdersFails()
-        {
-            //Arrange
-            InitService(httpStatusCode: HttpStatusCode.InternalServerError);
-
-            //Act
-            var result = await _orderService.GetOrders(It.IsAny<string[]>(), It.IsAny<int>());
-
-            //Assert
-            result.Should().BeOfType<OrderResponse>();
-            result.Content.Should().BeNullOrEmpty();
-            result.Count.Should().Be(0);
         }
     }
 }

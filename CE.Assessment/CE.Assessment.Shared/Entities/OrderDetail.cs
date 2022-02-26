@@ -1,4 +1,4 @@
-﻿namespace CE.Assessment.BusinessLogic.Entities
+﻿namespace CE.Assessment.Shared.Entities
 {
     public class OrderDetail
     {
@@ -17,17 +17,17 @@
         public string MerchantComment { get; set; }
         public BillingAddress BillingAddress { get; set; }
         public ShippingAddress ShippingAddress { get; set; }
-        public double SubTotalInclVat { get; set; }
-        public double SubTotalVat { get; set; }
-        public double ShippingCostsVat { get; set; }
-        public double TotalInclVat { get; set; }
-        public double TotalVat { get; set; }
-        public double OriginalSubTotalInclVat { get; set; }
-        public double OriginalSubTotalVat { get; set; }
-        public double OriginalShippingCostsInclVat { get; set; }
-        public double OriginalShippingCostsVat { get; set; }
-        public double OriginalTotalInclVat { get; set; }
-        public double OriginalTotalVat { get; set; }
+        public decimal SubTotalInclVat { get; set; }
+        public decimal SubTotalVat { get; set; }
+        public decimal ShippingCostsVat { get; set; }
+        public decimal TotalInclVat { get; set; }
+        public decimal TotalVat { get; set; }
+        public decimal OriginalSubTotalInclVat { get; set; }
+        public decimal OriginalSubTotalVat { get; set; }
+        public decimal OriginalShippingCostsInclVat { get; set; }
+        public decimal OriginalShippingCostsVat { get; set; }
+        public decimal OriginalTotalInclVat { get; set; }
+        public decimal OriginalTotalVat { get; set; }
         public List<Line> Lines { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
@@ -35,7 +35,7 @@
         public string VatNo { get; set; }
         public string PaymentMethod { get; set; }
         public string PaymentReferenceNo { get; set; }
-        public double ShippingCostsInclVat { get; set; }
+        public decimal ShippingCostsInclVat { get; set; }
         public string CurrencyCode { get; set; }
         public DateTime OrderDate { get; set; }
         public string ChannelCustomerNo { get; set; }

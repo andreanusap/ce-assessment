@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CE.Assessment.Web", "CE.Assessment.Web\CE.Assessment.Web.csproj", "{0A6F7FA0-24D6-4844-9FDF-0A606ED30F51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CE.Assessment.Web", "CE.Assessment.Web\CE.Assessment.Web.csproj", "{0A6F7FA0-24D6-4844-9FDF-0A606ED30F51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CE.Assessment.BusinessLogic", "CE.Assessment.BusinessLogic\CE.Assessment.BusinessLogic.csproj", "{B7EE194E-4EDE-409F-85DF-2DD722F51AAE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CE.Assessment.BusinessLogic", "CE.Assessment.BusinessLogic\CE.Assessment.BusinessLogic.csproj", "{B7EE194E-4EDE-409F-85DF-2DD722F51AAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CE.Assessment.Console", "CE.Assessment.Console\CE.Assessment.Console.csproj", "{F7C38647-C9E6-4173-81F4-3CA1625FFF99}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CE.Assessment.Console", "CE.Assessment.Console\CE.Assessment.Console.csproj", "{F7C38647-C9E6-4173-81F4-3CA1625FFF99}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CE.Assessment.BusinessLogic.Test", "CE.Assessment.BusinessLogic.Test\CE.Assessment.BusinessLogic.Test.csproj", "{68BE695D-5DA4-4E3B-9D4B-3FC5E1894D5C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CE.Assessment.BusinessLogic.Test", "CE.Assessment.BusinessLogic.Test\CE.Assessment.BusinessLogic.Test.csproj", "{68BE695D-5DA4-4E3B-9D4B-3FC5E1894D5C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CE.Assessment.WebApi", "CE.Assessment.WebApi\CE.Assessment.WebApi.csproj", "{2B61EE60-F88A-47C9-8C30-2DDDEBCA43F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CE.Assessment.Shared", "CE.Assessment.Shared\CE.Assessment.Shared.csproj", "{FEC6A1F0-3A5B-4CDA-9988-19C7C07BEB3E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{68BE695D-5DA4-4E3B-9D4B-3FC5E1894D5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68BE695D-5DA4-4E3B-9D4B-3FC5E1894D5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68BE695D-5DA4-4E3B-9D4B-3FC5E1894D5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B61EE60-F88A-47C9-8C30-2DDDEBCA43F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B61EE60-F88A-47C9-8C30-2DDDEBCA43F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B61EE60-F88A-47C9-8C30-2DDDEBCA43F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B61EE60-F88A-47C9-8C30-2DDDEBCA43F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEC6A1F0-3A5B-4CDA-9988-19C7C07BEB3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEC6A1F0-3A5B-4CDA-9988-19C7C07BEB3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEC6A1F0-3A5B-4CDA-9988-19C7C07BEB3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEC6A1F0-3A5B-4CDA-9988-19C7C07BEB3E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace CE.Assessment.BusinessLogic.Entities
+namespace CE.Assessment.Shared.Entities
 {
     public class ExtraData
     {

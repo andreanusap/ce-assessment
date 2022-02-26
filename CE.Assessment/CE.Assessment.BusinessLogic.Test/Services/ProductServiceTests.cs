@@ -1,57 +1,36 @@
-﻿using CE.Assessment.BusinessLogic.Services;
+﻿using CE.Assessment.BusinessLogic.Helpers;
+using CE.Assessment.BusinessLogic.Services;
+using CE.Assessment.BusinessLogic.Test.Extensions;
 using FluentAssertions;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.Protected;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
+using System;
 using System.Threading.Tasks;
 using Xunit;
-using Options = CE.Assessment.BusinessLogic.Entities.Options;
 
 namespace CE.Assessment.BusinessLogic.Test.Services
 {
     public class ProductServiceTests
     {
         private IProductService _productService;
-        private HttpClient _httpClient;
-        private Mock<IOptions<Options>> mockOptions;
-        private Mock<HttpMessageHandler> messageHandlerMock;
-
-        public ProductServiceTests() { }
-
-        private void InitService(HttpStatusCode httpStatusCode = HttpStatusCode.OK)
-        {
-            mockOptions = new Mock<IOptions<Options>>();
-            mockOptions.Setup(o => o.Value)
-                .Returns(new Options
-                {
-                    BaseUrl = "https://test.com",
-                    ApiKey = "apiKey"
-                });
-
-            messageHandlerMock = new Mock<HttpMessageHandler>();
-            messageHandlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = httpStatusCode
-                });
-
-            _httpClient = new HttpClient(messageHandlerMock.Object);
-            _productService = new ProductService(_httpClient, mockOptions.Object);
-        }
+        private Mock<IHttpClientHelper> mockHttpClientHelper;
+        private Mock<ILogger<ProductService>> mockLogger;
 
         [Fact]
-        public async Task ShouldReturnsSuccess_WhenRequestIsSuccess()
+        public async Task ShouldReturnTrue_WhenRequestIsSuccess()
         {
             //Arrange
             var merchantProductNo = "1234-S";
             var stock = 25;
 
-            InitService();
+            mockHttpClientHelper = new Mock<IHttpClientHelper>();
+            mockLogger = new Mock<ILogger<ProductService>>();
+
+            mockHttpClientHelper
+                .Setup(s => s.HttpPut(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+            _productService = new ProductService(mockHttpClientHelper.Object, mockLogger.Object);
 
             //Act
             var result = await _productService.UpdateStock(merchantProductNo, stock);
@@ -61,19 +40,27 @@ namespace CE.Assessment.BusinessLogic.Test.Services
         }
 
         [Fact]
-        public async Task ShouldReturnsFailed_WhenRequestIsNotSuccess()
+        public async Task ShouldReturnFalse_WhenRequestIsFailed()
         {
             //Arrange
             var merchantProductNo = "1234-S";
             var stock = 25;
 
-            InitService(HttpStatusCode.InternalServerError);
+            mockHttpClientHelper = new Mock<IHttpClientHelper>();
+            mockLogger = new Mock<ILogger<ProductService>>();
+
+            mockHttpClientHelper
+                .Setup(s => s.HttpPut(It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new Exception());
+
+            _productService = new ProductService(mockHttpClientHelper.Object, mockLogger.Object);
 
             //Act
             var result = await _productService.UpdateStock(merchantProductNo, stock);
 
             //Assert
             result.Should().BeFalse();
+            mockLogger.VerifyAtLeastOneLogMessagesContains("Update Stock service failed");
         }
     }
 }

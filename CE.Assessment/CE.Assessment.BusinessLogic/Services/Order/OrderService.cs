@@ -1,25 +1,18 @@
-﻿using CE.Assessment.BusinessLogic.Entities;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Options = CE.Assessment.BusinessLogic.Entities.Options;
+﻿using CE.Assessment.BusinessLogic.Helpers;
+using CE.Assessment.Shared.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace CE.Assessment.BusinessLogic.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly HttpClient _httpClient;
-        private readonly Options _options;
+        private readonly IHttpClientHelper _httpClientHelper;
+        private readonly ILogger<OrderService> _logger;
 
-        public OrderService(HttpClient httpClient, IOptions<Options> options) 
+        public OrderService(IHttpClientHelper httpClientHelper, ILogger<OrderService> logger) 
         {
-            _httpClient = httpClient;
-            _options = options.Value;
-            _httpClient.BaseAddress = new Uri($"{_options.BaseUrl}/orders");
-        }
-
-        public class ContentModel
-        {
-            public List<OrderDetail> Content { get; set; }
+            _httpClientHelper = httpClientHelper;
+            _logger = logger;
         }
 
         /// <summary>
@@ -30,24 +23,13 @@ namespace CE.Assessment.BusinessLogic.Services
         {
             try
             {
-                var request = $"?statuses=IN_PROGRESS&apikey={_options.ApiKey}";
-                using var httpRequest = new HttpRequestMessage(HttpMethod.Get, request);
-                using var httpResponse = await _httpClient.SendAsync(httpRequest);
-
-                if (httpResponse.IsSuccessStatusCode)
-                {
-                    var content = await httpResponse.Content.ReadAsStringAsync();
-                    var model = JsonConvert.DeserializeObject<ContentModel>(content);
-                    return model is not null ? model.Content : Enumerable.Empty<OrderDetail>();
-                } else
-                {
-                    return Enumerable.Empty<OrderDetail>();
-                }
+                var model = await _httpClientHelper.HttpGet<OrderResponse>("orders", "&statuses=IN_PROGRESS");
+                return model.Content;
             }
             catch (Exception ex)
-            { 
-                Console.Error.WriteLine(ex.Message);
-                throw;
+            {
+                _logger.LogError(ex, "Get In Progress service failed");
+                return null;
             }
         }
 
@@ -67,47 +49,20 @@ namespace CE.Assessment.BusinessLogic.Services
                     return orderProducts;
                 }
 
-                var dOrderProduct = new Dictionary<string, OrderProduct>();
-
-                foreach(var order in orderDetails)
-                {
-                    foreach(var line in order.Lines)
-                    {
-                        if (dOrderProduct.ContainsKey(line.MerchantProductNo))
-                        {
-                            dOrderProduct[line.MerchantProductNo].TotalQuantity += line.Quantity;
-                        } else
-                        {
-                            dOrderProduct.Add(line.MerchantProductNo,
-                                new OrderProduct(line.MerchantProductNo, line.Description, line.Gtin, line.Quantity));
-                        }
-                    }
-                }
-
-                foreach(var orderProduct in dOrderProduct)
-                {
-                    orderProducts.Add(orderProduct.Value);
-                }
-
-                var top5Products = orderProducts
-                    .OrderByDescending(x => x.TotalQuantity)
+                var lines = orderDetails.SelectMany(o => o.Lines).ToList();
+                return lines.GroupBy(l => l.MerchantProductNo)
+                    .Select(r => new OrderProduct(r.First().MerchantProductNo, 
+                        r.First().Description,
+                        r.First().Gtin, 
+                        r.Sum(c => c.Quantity)))
+                    .OrderByDescending(p => p.TotalQuantity)
                     .Take(5)
                     .ToList();
-
-                if(top5Products.Count() < 5) //populate empty products when there are less than 5 elements
-                {
-                    for(int i = 0;i < 5 - top5Products.Count(); i++)
-                    {
-                        top5Products.Add(new OrderProduct("", "-", "-", 0));
-                    }
-                }
-
-                return top5Products;
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
-                throw;
+                _logger.LogError(ex, "Get Top 5 Ordered Products service failed");
+                return null;
             }
         }
 
@@ -121,30 +76,22 @@ namespace CE.Assessment.BusinessLogic.Services
         {
             try
             {
-                var request = $"?apikey={_options.ApiKey}";
-                request += BuildRequestParameter(statuses: statuses, page: page);
-
-                using var httpRequest = new HttpRequestMessage(HttpMethod.Get, request);
-                using var httpResponse = await _httpClient.SendAsync(httpRequest);
-
-                if (httpResponse.IsSuccessStatusCode)
-                {
-                    var content = await httpResponse.Content.ReadAsStringAsync();
-                    var model = JsonConvert.DeserializeObject<OrderResponse>(content);
-                    return model is not null ? model : new OrderResponse();
-                }
-                else
-                {
-                    return new OrderResponse();
-                }
+                var requestParam = BuildRequestParameter(statuses: statuses, page: page);
+                return await _httpClientHelper.HttpGet<OrderResponse>("orders", requestParam);
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
-                throw;
+                _logger.LogError(ex, "Get Orders service failed");
+                return null;
             }
         }
 
+        /// <summary>
+        /// Build request parameters
+        /// </summary>
+        /// <param name="statuses">Array of status</param>
+        /// <param name="page">Page number</param>
+        /// <returns>String of request parameter</returns>
         private string BuildRequestParameter(string[] statuses = null, int page = 1)
         {
             var requestParam = string.Empty;

@@ -1,4 +1,4 @@
-﻿using CE.Assessment.BusinessLogic.Entities;
+﻿using CE.Assessment.Shared.Entities;
 
 namespace CE.Assessment.BusinessLogic.Services
 {

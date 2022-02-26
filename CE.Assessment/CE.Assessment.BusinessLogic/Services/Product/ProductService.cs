@@ -1,20 +1,19 @@
-﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System.Text;
-using Options = CE.Assessment.BusinessLogic.Entities.Options;
+﻿using Newtonsoft.Json;
+using CE.Assessment.BusinessLogic.Helpers;
+using Microsoft.Extensions.Logging;
+using CE.Assessment.Shared.Entities;
 
 namespace CE.Assessment.BusinessLogic.Services
 {
     public class ProductService : IProductService
     {
-        private readonly HttpClient _httpClient;
-        private readonly Options _options;
+        private readonly IHttpClientHelper _httpClientHelper;
+        private readonly ILogger<ProductService> _logger;
 
-        public ProductService(HttpClient httpClient, IOptions<Options> options)
+        public ProductService(IHttpClientHelper httpClientHelper, ILogger<ProductService> logger)
         {
-            _httpClient = httpClient;
-            _options = options.Value;
-            _httpClient.BaseAddress = new Uri($"{_options.BaseUrl}/offer/");
+            _httpClientHelper = httpClientHelper;
+            _logger = logger;
         }
 
         /// <summary>
@@ -27,33 +26,24 @@ namespace CE.Assessment.BusinessLogic.Services
         {
             try
             {
-                var requestUri = $"stock?apiKey={_options.ApiKey}";
-                var requestBody = new List<object>()
-                {   
-                    new
-                    {
-                        MerchantProductNo = merchantProductNo,
-                        Stock = stock
-                    }
+                var productStockRequest = new ProductStockRequest
+                {
+                    MerchantProductNo = merchantProductNo,
+                    Stock = stock
+                };
+
+                var requestBody = new List<ProductStockRequest>()
+                {
+                    productStockRequest
                 };
 
                 var serializedDoc = JsonConvert.SerializeObject(requestBody);
-                using var request = new HttpRequestMessage(HttpMethod.Put, requestUri);
-                request.Content = new StringContent(serializedDoc, Encoding.UTF8, "application/json");
-                using var response = await _httpClient.SendAsync(request);
-
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return false;
-                }
-
-                return true;
+                return await _httpClientHelper.HttpPut($"offer/stock", serializedDoc);
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
-                throw;
+                _logger.LogError(ex, "Update Stock service failed");
+                return false;
             }
         }
     }

@@ -2,7 +2,7 @@
 {
     public class OrderViewModel
     {
-        public List<OrderDetailModel> OrderDetails { get; set; }
+        public List<OrderDetailViewModel> OrderDetails { get; set; }
         public int Count { get; set; }
         public int TotalCount { get; set; }
         public int CurrentPage { get; set; }

@@ -1,6 +1,6 @@
-﻿namespace CE.Assessment.Web.Models
+﻿namespace CE.Assessment.Shared.Entities
 {
-    public class BillingAddressModel
+    public class BillingAddress
     {
         public string Line1 { get; set; }
         public string Line2 { get; set; }
