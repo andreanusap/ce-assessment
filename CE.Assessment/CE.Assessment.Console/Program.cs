@@ -1,4 +1,5 @@
-﻿using CE.Assessment.BusinessLogic.Services;
+﻿using CE.Assessment.BusinessLogic.Helpers;
+using CE.Assessment.BusinessLogic.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -88,6 +89,7 @@ public class Program
         services.Configure<Options>(configuration.GetSection("ApiSettings"));
 
         services.AddHttpClient();
+        services.AddSingleton<IHttpClientHelper, HttpClientHelper>();
         services.AddTransient<IOrderService, OrderService>();
         services.AddTransient<IProductService, ProductService>();
     }
