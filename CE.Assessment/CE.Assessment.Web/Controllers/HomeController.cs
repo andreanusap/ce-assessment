@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Net.Http.Headers;
 using System.Text;
 
 namespace CE.Assessment.Web.Controllers
@@ -14,11 +13,17 @@ namespace CE.Assessment.Web.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IOptions<ApiOptions> _options;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient httpClient;
 
-        public HomeController(IMapper mapper, IOptions<ApiOptions> options)
+        public HomeController(IMapper mapper, IOptions<ApiOptions> options, IHttpClientFactory httpClientFactory)
         {
             _mapper = mapper;
             _options = options;
+            _httpClientFactory = httpClientFactory;
+            httpClient = _httpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(_options.Value.BaseUrl);
+            httpClient.DefaultRequestHeaders.Add("XApiKey", _options.Value.XApiKey);
         }
 
         public async Task<IActionResult> Index()
@@ -36,20 +41,15 @@ namespace CE.Assessment.Web.Controllers
         {
             var topProducts = new List<OrderProductViewModel>();
 
-            using(var client = new HttpClient())
+            using var responseMessage = await httpClient.GetAsync("order/top5-ordered");
+
+            if (responseMessage.IsSuccessStatusCode)
             {
-                client.BaseAddress = new Uri(_options.Value.BaseUrl);
-                client.DefaultRequestHeaders.Add("XApiKey", _options.Value.XApiKey);
-                var responseMessage = await client.GetAsync("order/top5-ordered");
+                var content = await responseMessage.Content.ReadAsAsync<IEnumerable<OrderProductViewModel>>();
 
-                if (responseMessage.IsSuccessStatusCode)
+                if (content is not null && content.Any())
                 {
-                    var content = await responseMessage.Content.ReadAsAsync<IEnumerable<OrderProductViewModel>>();
-
-                    if (content is not null && content.Any())
-                    {
-                        topProducts = content.ToList();
-                    }
+                    topProducts = content.ToList();
                 }
             }
 
@@ -65,27 +65,22 @@ namespace CE.Assessment.Web.Controllers
 
             bool result = false;
 
-            using (var client = new HttpClient())
+            var productStockRequest = new ProductStockRequest
             {
-                client.BaseAddress = new Uri(_options.Value.BaseUrl);
-                client.DefaultRequestHeaders.Add("XApiKey", _options.Value.XApiKey);
+                MerchantProductNo = id,
+                Stock = 25
+            };
 
-                var productStockRequest = new ProductStockRequest
-                {
-                    MerchantProductNo = id,
-                    Stock = 25
-                };
+            var requestJson = JsonConvert.SerializeObject(productStockRequest);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
-                var requestJson = JsonConvert.SerializeObject(productStockRequest);
-                var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+            using var responseMessage = await httpClient.PutAsync($"product", content);
 
-                var responseMessage = await client.PutAsync($"product", content);
-
-                if (responseMessage.IsSuccessStatusCode)
-                {
-                    result = await responseMessage.Content.ReadAsAsync<bool>();
-                }
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                result = await responseMessage.Content.ReadAsAsync<bool>();
             }
+
             return View(result);
         }
 
@@ -97,33 +92,28 @@ namespace CE.Assessment.Web.Controllers
 
         private async Task<OrderViewModel> GetOrders(int page)
         {
-            using(var client = new HttpClient())
+            using var responseMessage = await httpClient.GetAsync("order");
+
+            if (responseMessage.IsSuccessStatusCode)
             {
-                client.BaseAddress = new Uri(_options.Value.BaseUrl);
-                client.DefaultRequestHeaders.Add("XApiKey", _options.Value.XApiKey);
-                var responseMessage = await client.GetAsync("order");
+                var orderDetails = await responseMessage.Content.ReadAsAsync<OrderResponse>();
 
-                if (responseMessage.IsSuccessStatusCode)
+                if (orderDetails is not null && orderDetails.Count > 0)
                 {
-                    var orderDetails = await responseMessage.Content.ReadAsAsync<OrderResponse>();
-
-                    if (orderDetails is not null && orderDetails.Count > 0)
-                    {
-                        double pageCount = orderDetails.TotalCount / orderDetails.Count;
-                        var model = _mapper.Map<OrderViewModel>(orderDetails);
-                        model.CurrentPage = page;
-                        model.PageCount = (int)Math.Ceiling(pageCount);
-                        return model;
-                    }
-                    else
-                    {
-                        return _mapper.Map<OrderViewModel>(orderDetails);
-                    }
+                    double pageCount = orderDetails.TotalCount / orderDetails.Count;
+                    var model = _mapper.Map<OrderViewModel>(orderDetails);
+                    model.CurrentPage = page;
+                    model.PageCount = (int)Math.Ceiling(pageCount);
+                    return model;
                 }
                 else
                 {
-                    return new OrderViewModel();
+                    return _mapper.Map<OrderViewModel>(orderDetails);
                 }
+            }
+            else
+            {
+                return new OrderViewModel();
             }
         }
     }

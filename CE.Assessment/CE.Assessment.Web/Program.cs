@@ -40,4 +40,6 @@ void ConfigureServices(IServiceCollection services)  {
     services.Configure<ApiOptions>(configuration.GetSection("ApiSettings"));
 
     services.AddAutoMapper(typeof(MappingProfile));
+
+    services.AddHttpClient();
 }
