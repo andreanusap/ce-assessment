@@ -1,9 +1,8 @@
-﻿using CE.Assessment.BusinessLogic.Entities;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Text;
-using Options = CE.Assessment.BusinessLogic.Entities.Options;
+using Options = CE.Assessment.Shared.Entities.Options;
 
 namespace CE.Assessment.BusinessLogic.Helpers
 {

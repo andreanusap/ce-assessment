@@ -1,6 +1,6 @@
-using CE.Assessment.BusinessLogic.Entities;
 using CE.Assessment.BusinessLogic.Helpers;
 using CE.Assessment.BusinessLogic.Services;
+using CE.Assessment.Shared.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 

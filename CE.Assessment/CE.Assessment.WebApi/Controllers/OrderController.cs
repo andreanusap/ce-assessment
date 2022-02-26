@@ -1,4 +1,4 @@
-﻿using CE.Assessment.BusinessLogic.Entities;
+﻿using CE.Assessment.Shared.Entities;
 using CE.Assessment.BusinessLogic.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +17,12 @@ namespace CE.Assessment.WebApi.Controllers
             _orderService = orderService;
         }
 
+        /// <summary>
+        /// Get Orders
+        /// </summary>
+        /// <param name="statuses">List of status</param>
+        /// <param name="page">Page</param>
+        /// <returns>Order Response</returns>
         [HttpGet]
         public async Task<ActionResult<OrderResponse>> GetOrders([FromQuery]string[] statuses, [FromQuery]int page)
         {
@@ -38,6 +44,10 @@ namespace CE.Assessment.WebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Get Top 5 Ordered Products
+        /// </summary>
+        /// <returns>List of Ordered products</returns>
         [HttpGet("top5-ordered")]
         public async Task<ActionResult<IEnumerable<OrderProduct>>> GetTop5OrderedProducts()
         {

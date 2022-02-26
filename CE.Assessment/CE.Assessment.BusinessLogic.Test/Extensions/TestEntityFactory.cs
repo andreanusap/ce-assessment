@@ -1,5 +1,5 @@
 ﻿using AutoFixture;
-using CE.Assessment.BusinessLogic.Entities;
+using CE.Assessment.Shared.Entities;
 using System;
 using System.Collections.Generic;
 

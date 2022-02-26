@@ -1,5 +1,5 @@
-﻿using CE.Assessment.BusinessLogic.Entities;
-using CE.Assessment.BusinessLogic.Helpers;
+﻿using CE.Assessment.BusinessLogic.Helpers;
+using CE.Assessment.Shared.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace CE.Assessment.BusinessLogic.Services

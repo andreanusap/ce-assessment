@@ -1,6 +1,6 @@
-﻿using CE.Assessment.BusinessLogic.Entities;
-using CE.Assessment.BusinessLogic.Helpers;
+﻿using CE.Assessment.BusinessLogic.Helpers;
 using CE.Assessment.BusinessLogic.Test.Extensions;
+using CE.Assessment.Shared.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,7 +13,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Options = CE.Assessment.BusinessLogic.Entities.Options;
+using Options = CE.Assessment.Shared.Entities.Options;
 
 namespace CE.Assessment.BusinessLogic.Test.Helpers
 {

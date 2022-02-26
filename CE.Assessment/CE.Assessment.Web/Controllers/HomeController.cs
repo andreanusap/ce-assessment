@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using CE.Assessment.Shared.Entities;
 using CE.Assessment.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Text;
 
 namespace CE.Assessment.Web.Controllers
 {
@@ -63,7 +66,17 @@ namespace CE.Assessment.Web.Controllers
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(_options.Value.BaseUrl);
-                var responseMessage = await client.PutAsync($"product/{id}", null);
+                
+                var productStockRequest = new ProductStockRequest
+                {
+                    MerchantProductNo = id,
+                    Stock = 25
+                };
+
+                var requestJson = JsonConvert.SerializeObject(productStockRequest);
+                var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+                var responseMessage = await client.PutAsync($"product", content);
 
                 if (responseMessage.IsSuccessStatusCode)
                 {
@@ -88,7 +101,7 @@ namespace CE.Assessment.Web.Controllers
 
                 if (responseMessage.IsSuccessStatusCode)
                 {
-                    var orderDetails = await responseMessage.Content.ReadAsAsync<OrderResponseModel>();
+                    var orderDetails = await responseMessage.Content.ReadAsAsync<OrderResponse>();
 
                     if (orderDetails is not null && orderDetails.Count > 0)
                     {

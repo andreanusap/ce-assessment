@@ -13,4 +13,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CE.Assessment.Shared\CE.Assessment.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,4 @@
-﻿using CE.Assessment.BusinessLogic.Entities;
-using CE.Assessment.BusinessLogic.Services;
+﻿using CE.Assessment.BusinessLogic.Services;
 using FluentAssertions;
 using System.Collections.Generic;
 using Xunit;
@@ -10,6 +9,7 @@ using CE.Assessment.BusinessLogic.Helpers;
 using Microsoft.Extensions.Logging;
 using System;
 using CE.Assessment.BusinessLogic.Test.Extensions;
+using CE.Assessment.Shared.Entities;
 
 namespace CE.Assessment.BusinessLogic.Test.Services
 {

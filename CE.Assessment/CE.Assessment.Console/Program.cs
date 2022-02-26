@@ -2,8 +2,7 @@
 using CE.Assessment.BusinessLogic.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Options = CE.Assessment.BusinessLogic.Entities.Options;
+using Options = CE.Assessment.Shared.Entities.Options;
 
 public class Program
 {

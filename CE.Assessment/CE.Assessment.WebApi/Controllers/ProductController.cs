@@ -1,4 +1,5 @@
 ﻿using CE.Assessment.BusinessLogic.Services;
+using CE.Assessment.Shared.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CE.Assessment.WebApi.Controllers
@@ -16,12 +17,25 @@ namespace CE.Assessment.WebApi.Controllers
             _productService = productService;
         }
 
-        [HttpPut("{merchantProductNo}")]
-        public async Task<IActionResult> UpdateProductStock(string merchantProductNo)
+        /// <summary>
+        /// Update Product Stock
+        /// </summary>
+        /// <param name="productStockRequest">Updated product data</param>
+        /// <returns>Success or failures of update product's stock process</returns>
+        [HttpPut]
+        public async Task<IActionResult> UpdateProductStock([FromBody]ProductStockRequest productStockRequest)
         {
             try
             {
-                var isSuccess = await _productService.UpdateStock(merchantProductNo, 25);
+                if(productStockRequest is null 
+                    || string.IsNullOrWhiteSpace(productStockRequest.MerchantProductNo)
+                    || productStockRequest.Stock < 0)
+                {
+                    return BadRequest();
+                }
+
+                var isSuccess = await _productService.UpdateStock(productStockRequest.MerchantProductNo, 
+                    productStockRequest.Stock);
                 return isSuccess? Ok(isSuccess) : StatusCode(500);
             }
             catch (Exception ex)
