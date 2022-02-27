@@ -46,7 +46,7 @@ namespace CE.Assessment.BusinessLogic.Test.Services
         }
 
         [Fact]
-        public async Task ShouldThrowException_WhenGetInProgressOrdersSuccess()
+        public async Task ShouldThrowException_WhenGetInProgressOrdersFailed()
         {
             //Arrange
             var orderDetails = TestEntityFactory.CreateOrderDetails();
@@ -64,16 +64,14 @@ namespace CE.Assessment.BusinessLogic.Test.Services
 
             _orderService = new OrderService(mockHttpClientHelper.Object, mockLogger.Object);
 
-            //Act
-            var result = await _orderService.GetInProgressOrders();
 
-            //Assert
-            result.Should().BeNull();
+            //Act & Assert
+            await Assert.ThrowsAsync<Exception>(() => _orderService.GetInProgressOrders());
             mockLogger.VerifyAtLeastOneLogMessagesContains("Get In Progress service failed");
         }
 
         [Fact]
-        public async Task ShouldReturnTop5Products_WhenOrdersIsProvidedAsync() 
+        public async Task ShouldReturnTop5Products_WhenOrdersIsProvided() 
         {
             //Arrange
             var orderDetails = TestEntityFactory.CreateOrderDetails(maxQuantity: 20);
@@ -107,6 +105,57 @@ namespace CE.Assessment.BusinessLogic.Test.Services
 
             //Assert
             result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task ShouldReturnOrderResponse_WhenGetOrdersSuccess()
+        {
+            //Arrange
+            var orderDetails = TestEntityFactory.CreateOrderDetails();
+            var content = new OrderResponse
+            {
+                Content = orderDetails.ToList()
+            };
+
+            mockHttpClientHelper = new Mock<IHttpClientHelper>();
+            mockLogger = new Mock<ILogger<OrderService>>();
+
+            mockHttpClientHelper
+                .Setup(s => s.HttpGet<OrderResponse>(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(content);
+
+            _orderService = new OrderService(mockHttpClientHelper.Object, mockLogger.Object);
+
+            //Act
+            var result = await _orderService.GetOrders(It.IsAny<string[]>(), It.IsAny<int>());
+
+            //Assert
+            result.Should().BeOfType<OrderResponse>();
+        }
+
+        [Fact]
+        public async Task ShouldThrowException_WhenGetOrdersFailed()
+        {
+            //Arrange
+            var orderDetails = TestEntityFactory.CreateOrderDetails();
+            var content = new OrderResponse
+            {
+                Content = orderDetails.ToList()
+            };
+
+            mockHttpClientHelper = new Mock<IHttpClientHelper>();
+            mockLogger = new Mock<ILogger<OrderService>>();
+
+            mockHttpClientHelper
+                .Setup(s => s.HttpGet<OrderResponse>(It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new Exception());
+
+            _orderService = new OrderService(mockHttpClientHelper.Object, mockLogger.Object);
+
+
+            //Act & Assert
+            await Assert.ThrowsAsync<Exception>(() => _orderService.GetOrders(It.IsAny<string[]>(), It.IsAny<int>()));
+            mockLogger.VerifyAtLeastOneLogMessagesContains("Get Orders service failed");
         }
     }
 }

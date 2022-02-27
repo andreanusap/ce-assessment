@@ -43,7 +43,7 @@ namespace CE.Assessment.BusinessLogic.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Update Stock service failed");
-                return false;
+                throw;
             }
         }
     }
