@@ -1,5 +1,7 @@
 using CE.Assessment.Web.Helpers;
 using CE.Assessment.Web.Models;
+using CE.Assessment.Web.Services;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,5 +43,10 @@ void ConfigureServices(IServiceCollection services)  {
 
     services.AddAutoMapper(typeof(MappingProfile));
 
-    services.AddHttpClient();
+    services.AddHttpClient<IHomeService, HomeService>((sp, client) =>
+    {
+        var apiOptions = sp.GetRequiredService<IOptions<ApiOptions>>().Value;
+        client.BaseAddress = new Uri(apiOptions.BaseUrl);
+        client.DefaultRequestHeaders.Add("XApiKey", apiOptions.XApiKey);
+    });
 }

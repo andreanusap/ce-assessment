@@ -55,11 +55,8 @@ namespace CE.Assessment.BusinessLogic.Test.Services
 
             _productService = new ProductService(mockHttpClientHelper.Object, mockLogger.Object);
 
-            //Act
-            var result = await _productService.UpdateStock(merchantProductNo, stock);
-
-            //Assert
-            result.Should().BeFalse();
+            //Act & Assert
+            await Assert.ThrowsAsync<Exception>(() => _productService.UpdateStock(It.IsAny<string>(), It.IsAny<int>()));
             mockLogger.VerifyAtLeastOneLogMessagesContains("Update Stock service failed");
         }
     }

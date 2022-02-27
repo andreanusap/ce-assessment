@@ -29,7 +29,7 @@ namespace CE.Assessment.BusinessLogic.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Get In Progress service failed");
-                return null;
+                throw;
             }
         }
 
@@ -62,7 +62,7 @@ namespace CE.Assessment.BusinessLogic.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Get Top 5 Ordered Products service failed");
-                return null;
+                throw;
             }
         }
 
@@ -82,7 +82,7 @@ namespace CE.Assessment.BusinessLogic.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Get Orders service failed");
-                return null;
+                throw;
             }
         }
 
